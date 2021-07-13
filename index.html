@@ -1,0 +1,287 @@
+<html lang="pl-PL">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+		<link rel="stylesheet" href="bootstrap/css/bootstrap.css" />
+		<link rel="stylesheet" href="awesome/css/all.css" />
+		<link rel="stylesheet" href="style/gui.css" />
+
+		<script src="src/jquery.js"></script>
+		<script src="bootstrap/js/bootstrap.min.js"></script>
+		<script src="src/vue.js"></script>
+	</head>
+	<body>
+		<div class="container w-50 h-10 mt-5" id="widget">
+			<div v-if="view=='main view'">
+				<div class="row align-items-center h-10 text-center position-relative">
+					<div class="position-absolute" id="top_cover_bar">
+						<div class="col-9 d-inline-block">
+							<button
+								class="player_button fas fa-exchange-alt"
+								v-bind:class="{'toggled':repeating}"
+								v-on:click="repeat_toggle()"
+							></button>
+							<button
+								class="player_button fas fa-random"
+								v-bind:class="{'toggled':shuffling}"
+								v-on:click="shuffle_toggle()"
+							></button>
+							<button class="player_button fas fa-redo" v-on:click="rewind_song()"></button>
+						</div>
+						<div class="col-2 d-inline-block">
+							<button class="player_button fas fa-bars" v-on:click="switch_view()"></button>
+						</div>
+					</div>
+					<img :src="songs[current_song].cover" height="500px" width="100%" />
+					<span class="position-absolute" id="bottom_cover_bar">
+						<h4>{{songs[current_song].artist}}</h4>
+						<h5>{{songs[current_song].name}}</h5>
+					</span>
+				</div>
+				<div class="bg-danger progress">
+					<div id="song_progressbar" style="background: white; width: 0%" role="progressbar"></div>
+				</div>
+				<div class="col-12 text-center" id="player_main_section">
+					<div class="col-2 d-inline-block text-left">
+						<button class="bottom_button fas fa-share-alt"></button>
+					</div>
+					<div class="col-6 d-inline-block text-center" id="player_section">
+						<button
+							class="main_button fas fa-step-backward rounded-circle"
+							v-on:click="change_song('previous')"
+						></button>
+						<button
+							class="main_button fas rounded-circle"
+							v-bind:class="{'fa-play':status=='paused','fa-pause':status=='playing'}"
+							style="height: 60%; width: 30%"
+							v-on:click="toggle_player()"
+						></button>
+						<button class="main_button fas fa-step-forward rounded-circle" v-on:click="change_song('next')"></button>
+					</div>
+					<div class="col-2 d-inline-block text-right">
+						<button class="bottom_button fas fa-heart" style="color: palevioletred"></button>
+					</div>
+				</div>
+			</div>
+
+			<div v-else-if="view=='song list'">
+				<div class="row align-items-center h-10 position-relative" id="playlist">
+					<div class="col-12" style="background-color: white">
+						<div class="col-1 text-left d-inline-block ml-0">
+							<button class="bottom_button fas fa-reply" v-on:click="switch_view()"></button>
+						</div>
+						<h4 class="col-10 text-center d-inline-block" style="color: black">Playlist</h4>
+					</div>
+					<div
+						class="col-12 song_element border-bottom"
+						v-for="(song,songId) in songs"
+						role="button"
+						v-on:click="play_song(songId)"
+					>
+						<div class="col-8 d-inline-block text-left">
+							{{song.length}} | {{song.artist}}<br />
+							<h5>{{song.name}}</h5>
+						</div>
+						<div class="col-3 d-inline-block text-center">
+							<button class="bottom_button fas fa-share-alt"></button>
+							<button class="bottom_button fas fa-heart" style="color: palevioletred"></button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+	<script>
+		var Main_View = new Vue({
+			el: "#widget",
+			data() {
+				return {
+					view: "main view",
+					current_song: 0,
+					player_interval: 0,
+					current_time: 0,
+					shuffling: false,
+					repeating: false,
+					status: "playing",
+					songs: [
+						{
+							artist: "Alfa",
+							name: "my first song",
+							length: "0:15",
+							cover: "covers/cover1.jpg",
+						},
+						{
+							artist: "Beta",
+							name: "my second song",
+							length: "4:58",
+							cover: "covers/cover2.jpg",
+						},
+						{
+							artist: "Theta",
+							name: "my third song",
+							length: "2:12",
+							cover: "covers/cover3.jpg",
+						},
+						{
+							artist: "Omega",
+							name: "my fourth song",
+							length: "2:57",
+							cover: "covers/cover4.jpg",
+						},
+						{
+							artist: "Alfa",
+							name: "my first song",
+							length: "3:15",
+							cover: "covers/cover1.jpg",
+						},
+						{
+							artist: "Placeholder1",
+							name: "name placeholder",
+							length: "4:58",
+							cover: "covers/cover2.jpg",
+						},
+						{
+							artist: "Placeholder2",
+							name: "name placeholder",
+							length: "4:58",
+							cover: "covers/cover3.jpg",
+						},
+						{
+							artist: "Placeholder3",
+							name: "name placeholder",
+							length: "4:58",
+							cover: "covers/cover4.jpg",
+						},
+						{
+							artist: "Placeholder4",
+							name: "name placeholder",
+							length: "4:58",
+							cover: "covers/cover1.jpg",
+						},
+						{
+							artist: "Placeholder5",
+							name: "name placeholder",
+							length: "4:58",
+							cover: "covers/cover2.jpg",
+						},
+						{
+							artist: "Placeholder6",
+							name: "name placeholder",
+							length: "4:58",
+							cover: "covers/cover3.jpg",
+						},
+						{
+							artist: "Placeholder7",
+							name: "name placeholder",
+							length: "4:58",
+							cover: "covers/cover4.jpg",
+						},
+						{
+							artist: "Placeholder8",
+							name: "name placeholder",
+							length: "4:58",
+							cover: "covers/cover2.jpg",
+						},
+						{
+							artist: "Placeholder9",
+							name: "name placeholder",
+							length: "4:58",
+							cover: "covers/cover3.jpg",
+						},
+						{
+							artist: "Placeholder10",
+							name: "name placeholder",
+							length: "4:58",
+							cover: "covers/cover4.jpg",
+						},
+						{
+							artist: "Placeholder11",
+							name: "name placeholder",
+							length: "4:58",
+							cover: "covers/cover1.jpg",
+						},
+					],
+				};
+			},
+			mounted() {
+				this.player_interval = setInterval(() => {
+					this.progress_song();
+				}, 1000);
+			},
+			methods: {
+				toggle_player() {
+					if (this.status == "paused") {
+						this.status = "playing";
+					} else {
+						this.status = "paused";
+					}
+				},
+
+				switch_view() {
+					if (this.view == "main view") {
+						this.view = "song list";
+					} else {
+						this.view = "main view";
+					}
+				},
+
+				change_song(turn) {
+					let amount = this.songs.length;
+					this.current_time = 0;
+					if (turn == "next") {
+						if (this.current_song < amount - 1) {
+							if (this.shuffling) {
+								this.current_song = Math.floor(Math.random() * this.songs.length);
+							} else {
+								this.current_song++;
+							}
+						} else {
+							this.current_song = 0;
+						}
+					} else if (turn == "previous") {
+						if (this.current_song > 0) {
+							this.current_song--;
+						} else {
+							this.current_song = amount - 1;
+						}
+					}
+				},
+
+				play_song(songId) {
+					this.current_song = songId;
+					this.view = "main view";
+				},
+
+				progress_song() {
+					let song = this.songs[this.current_song];
+					let time = song.length.split(":");
+					let total_seconds = parseInt(time[0]) * 60 + parseInt(time[1]);
+
+					let percentage_time = ((this.current_time / total_seconds) * 100).toFixed(1);
+
+					$("#song_progressbar").css("width", `${percentage_time}%`);
+					if (this.current_time >= total_seconds) {
+						if (!this.repeating) {
+							this.change_song("next");
+						} else {
+							this.current_time = 0;
+						}
+					} else {
+						this.current_time++;
+					}
+				},
+
+				rewind_song() {
+					this.current_time = 0;
+				},
+				shuffle_toggle() {
+					this.shuffling = !this.shuffling;
+				},
+				repeat_toggle() {
+					this.repeating = !this.repeating;
+				},
+			},
+		});
+	</script>
+</html>
