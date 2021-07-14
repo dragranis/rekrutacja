@@ -254,6 +254,9 @@
 				},
 
 				progress_song() {
+					 if(this.status == "paused"){
+          					  return false
+        				  }
 					let song = this.songs[this.current_song];
 					let time = song.length.split(":");
 					let total_seconds = parseInt(time[0]) * 60 + parseInt(time[1]);
